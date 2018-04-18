@@ -1,95 +1,125 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+  <div id="chat" class="chat">
+    <div v-show="modalWindow" class="modal-log">
+      <div class="modal-wrapp">
+        <div style="color: white; font-size: 60px; margin-bottom: 10px;">
+          <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+        </div>
+        <form v-on:submit.prevent="closeModal">
+          <input v-model="username" type="text" placeholder="Write your login...">
+        </form>
+      </div>
+    </div>
+    <div class="head-nav">
+      <div class="logo-drop">
+        <menu-icon style="margin-right: 20px;" class="custom-class"></menu-icon>
+        <a>Messanger</a>
+      </div>
+      <div>
+        <li
+          v-for="(user, index) in users"
+          :key="index"
+          :user="user"
+          style="list-style: none; color: white; display: inline; font-size: 18px;">
+          {{ user }}
+        </li>
+        <user-icon style="color: white;" class="custom-class"></user-icon>
+      </div>
+    </div>
+    <div class="wrapp-main">
+      <div>
+        <div style="max-height: 540px; overflow-y: scroll;">
+          <div class="message" v-for="(m, index) in messages"
+            :key="index"
+            :index="index"
+            :m="m"
+            style="padding: 10px;">
+            <p @click="messageId" style="margin: 0">
+              {{ m }}
+            </p>
+          </div>
+        </div>
+        <form>
+          <input type="text" v-model="msg" autocomplete="off" placeholder="Write a message..."/>
+          <button type="submit" v-on:click.prevent="msgSend"><send-icon class="custom-class"></send-icon></button>
+        </form>
+      </div>
+    </div>
+    <transition name="opacity">
+      <div v-show="joinUser" class="join-window">
+        <li
+          v-for="(u, index) in userWindow"
+          :key="index"
+          :u="u"
+          style="list-style: none; color: white; display: inline; font-size: 16px;">
+          <h3>{{ u }} joined in chat</h3>
+        </li>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
+import { MenuIcon, MoreVerticalIcon, SendIcon, UserIcon } from 'vue-feather-icons'
+import io from 'socket.io-client'
+const socket = io('http://localhost:3001')
 export default {
   name: 'HelloWorld',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
-    }
+  data: () => ({
+      msg: 'Welcome to Your Vue.js App',
+      modalWindow: true,
+      messages: [],
+      msg: null,
+      users: [],
+      username: null,
+      userWindow: [],
+      joinUser: false,
+      vuechat: false
+  }),
+  methods: {
+      closeModal() {
+        this.modalWindow = false;
+        this.users.push(this.username);
+        if(this.username.trim() !== '') {
+          socket.emit('username', this.username);
+        };
+      },
+      msgSend() {
+        if(this.msg.trim() !== '') {
+          socket.emit('chat message', this.username + ": " + this.msg);
+          socket.emit('say to someone');
+        };
+        this.msg = null;
+      },
+      messageId() {
+        socket.emit('users id', this.username);
+      }
+    },
+  created() {
+    socket.on('username', (user) => {
+      setTimeout(() => {
+        this.userWindow.push(user);
+        this.joinUser = true;
+      }, 1000);
+      setTimeout(() => {
+        this.joinUser = false;
+        this.userWindow.forEach(() => this.userWindow.shift());
+      }, 2500);
+    });
+    socket.on('chat message', (msg) => {
+      setTimeout(() => {
+        this.messages.push(msg)
+      }, 200);
+    });
+    socket.on('say to someone', (id, msg) => {
+        
+    });
+  },
+  components: {
+    MenuIcon,
+    MoreVerticalIcon,
+    SendIcon,
+    UserIcon
   }
 }
 </script>
