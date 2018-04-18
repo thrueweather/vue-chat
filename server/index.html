@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat</title>
+  </head>
+<body>
+    <div id="chat" class="chat">
+      <div v-show="modalWindow" class="modal-log">
+        <div class="modal-wrapp">
+          <div style="color: white; font-size: 60px; margin-bottom: 10px;">
+            <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+          </div>
+          <form v-on:submit.prevent="closeModal">
+            <input type="text" v-model="username" placeholder="Write your login...">
+          </form>
+        </div>
+      </div>
+      <div class="head-nav">
+        <div class="logo-drop">
+          <a><i style="margin-right: 20px" class="fa fa-bars" aria-hidden="true"></i>Messenger</a>
+        </div>
+        <div>
+          <i style="color: white; font-size: 14px;" class="fa fa-ellipsis-v" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="wrapp-main">
+        <div style="display: flex; flex-direction: column; width: 100%; margin: 0 auto 0 auto; position: relative">
+          <div style="max-height: 540px; overflow-y: scroll;">
+            <div class="message" v-for="(m, index) in messages"
+              :key="index"
+              :index="index"
+              :m="m"
+              :title="date"
+              style="padding: 10px;">
+              <p style="margin: 0;">
+                {{ m }}
+              </p>
+            </div>
+          </div>
+          <form>
+            <input type="text" v-model="msg" autocomplete="off" placeholder="Write a message..."/>
+            <button type="submit" v-on:click.prevent="msgSend"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // var socket = io('http://localhost:3001');
+    new Vue({
+      el: '#chat',
+      data: () => ({
+        modalWindow: true,
+        messages: [],
+        msg: null,
+        users: [],
+        username: null,
+        date: new Date()
+      }),
+      methods: {
+        closeModal() {
+          this.modalWindow = false
+        },
+        msgSend() {
+          socket.emit('chat message', this.username + ": " + this.msg);
+          // this.username = null;
+          this.msg = null;
+        }
+      },
+      created() {
+        // socket.on('add user', (username) => {
+        // setTimeout(() => {
+        //  this.messages.push(username);
+        // }, 100);
+        // });
+
+        socket.on('chat message', (msg) => {
+          setTimeout(() => {
+            this.messages.push(msg)
+          }, 100);
+        });
+      }
+    });
+  </script>
+
+  <style>
+  @import url("https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css");
+  @import url('https://fonts.googleapis.com/css?family=Lato:300,400,700');
+    body {
+      margin: 0;
+      background-color: #ececec;
+      font-family: 'Lato', sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .modal-log {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #28baf0;
+      height: 100%;
+      width: 100%;
+      z-index: 100;
+    }
+    .modal-log, .modal-wrapp {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .chat {
+      background-color: white;
+      max-width: 1210px;
+      min-width: 700px;
+      margin: auto;
+    }
+    .head-nav {
+      max-width: 1210px;
+      margin: 0 auto;
+      padding: 15px 20px;
+      background: #28baf0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-drop {
+      width: 31%;
+      color: white;
+    }
+    .wrapp-main {
+      display: flex;
+      align-items: flex-end;
+      padding: 20px 0 10px 0;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+    }
+    form {
+      width: 100%;
+      margin: 0 auto 0 auto;
+    }
+    .message {
+      cursor: pointer;
+      transition: .3s;
+    }
+    .message:hover {
+      background-color: #eee;
+    }
+    input {
+      width: 89.8%;
+      border-radius: 20px;
+      padding: 10px;
+      border: 1px solid #eee;
+      outline: none;
+    }
+    button {
+      border: none;
+      outline: none;
+      border-radius: 50%;
+      padding: 10px 16px;
+      background-color: #28baf0;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</body>
+</html>
