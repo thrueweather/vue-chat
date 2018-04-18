@@ -126,18 +126,92 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
+.chat {
+  background-color: white;
+  width: 50%;
+  margin: auto;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.head-nav {
+  max-width: 1210px;
+  margin: 0 auto;
+  padding: 15px 20px;
+  background: #28baf0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+.logo-drop {
+  color: white;
 }
-a {
-  color: #42b983;
+.logo-drop a {
+  font-size: 18px;
+  font-weight: 600;
+}
+.modal-log, .modal-wrapp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.wrapp-main {
+/*box-shadow: 0 1px 5px rgba(0,0,0,0.3);*/
+}
+.message {
+  cursor: pointer;
+  transition: .3s;
+  margin: 10px 0 0 0;
+}
+.message:hover {
+  background-color: #eee;
+}
+form {
+  width: 100%;
+  margin: 0 auto 0 auto;
+  padding: 10px 0;
+}
+input {
+  width: 88.6%;
+  border-radius: 20px;
+  padding: 12px 10px;
+  border: 1px solid #eee;
+  font-size: 16px;
+  outline: none;
+}
+button {
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  padding: 10px 16px 7px 14px;
+  background-color: #28baf0;
+  color: white;
+  cursor: pointer;
+}
+.modal-log {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #28baf0;
+  height: 100%;
+  width: 100%;
+  z-index: 100;
+}
+.join-window {
+  background-color: #28baf0;
+  padding: 20px;
+  position: absolute;
+  right: 2%;
+  bottom: 5%;
+  width: 300px;
+}
+.join-window h3 {
+  font-weight: 500;
+  margin: 0;
+}
+.opacity-enter-active, .opacity-leave-active {
+  transition: opacity .3s;
+}
+.opacity-enter, .opacity-leave-to {
+  transition: opacity .5s;
+  opacity: 0;
 }
 </style>
