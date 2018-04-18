@@ -13,7 +13,7 @@
     <div class="head-nav">
       <div class="logo-drop">
         <menu-icon style="margin-right: 20px;" class="custom-class"></menu-icon>
-        <a>Messanger</a>
+        <a>Messanger {{ count }}</a>
       </div>
       <div>
         <li
@@ -34,7 +34,7 @@
             :index="index"
             :m="m"
             style="padding: 10px;">
-            <p @click="messageId" style="margin: 0">
+            <p style="margin: 0">
               {{ m }}
             </p>
           </div>
@@ -63,6 +63,7 @@
 import { MenuIcon, MoreVerticalIcon, SendIcon, UserIcon } from 'vue-feather-icons'
 import io from 'socket.io-client'
 const socket = io('http://localhost:3001')
+import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'HelloWorld',
   data: () => ({
@@ -76,6 +77,11 @@ export default {
       joinUser: false,
       vuechat: false
   }),
+  computed: {
+    ...mapState([
+      'count'
+    ])
+  },
   methods: {
       closeModal() {
         this.modalWindow = false;
@@ -91,10 +97,10 @@ export default {
         };
         this.msg = null;
       },
-      messageId() {
-        socket.emit('users id', this.username);
-      }
-    },
+      ...mapMutations([
+        'increment'
+      ])
+  },
   created() {
     socket.on('username', (user) => {
       setTimeout(() => {
@@ -110,9 +116,6 @@ export default {
       setTimeout(() => {
         this.messages.push(msg)
       }, 200);
-    });
-    socket.on('say to someone', (id, msg) => {
-        
     });
   },
   components: {
