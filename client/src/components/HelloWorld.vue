@@ -52,7 +52,7 @@
           :key="index"
           :u="u"
           style="list-style: none; color: white; display: inline; font-size: 16px;">
-          <h3>{{ u }} joined in chat</h3>
+          <h3>{{ u }}</h3>
         </li>
       </div>
     </transition>
@@ -93,7 +93,6 @@ export default {
       msgSend() {
         if(this.msg.trim() !== '') {
           socket.emit('chat message', this.username + ": " + this.msg);
-          socket.emit('say to someone');
         };
         this.msg = null;
       },
@@ -107,10 +106,10 @@ export default {
         this.userWindow.push(user);
         this.joinUser = true;
       }, 1000);
-      setTimeout(() => {
-        this.joinUser = false;
-        this.userWindow.forEach(() => this.userWindow.shift());
-      }, 2500);
+      // setTimeout(() => {
+      //   this.joinUser = false;
+      //   this.userWindow.forEach(() => this.userWindow.shift());
+      // }, 2500);
     });
     socket.on('chat message', (msg) => {
       setTimeout(() => {
