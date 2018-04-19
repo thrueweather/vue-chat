@@ -2,6 +2,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 var users = {};
+
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '../client/index.html');
 });
@@ -9,21 +10,38 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
 	let time = (new Date).toLocaleTimeString();
 
-	socket.on('username', (user) => {
-		io.emit('username', user);
-		socket.nickname = user;
-		users[socket.nickname] = socket;
-		console.log(user + ' joined in chat' + ' at ' + time);
+	socket.on('new user', (data, callback) => {
+		if(data in users) {
+			callback(false);
+		} else {
+			socket.nickname = data;
+			users[socket.nickname] = socket;
+			io.emit('new user', data);
+			updateUsers();
+			console.log(socket.nickname + ' joined in chat' + ' at ' + time);
+		}
 	});
 
-	socket.on('chat message', (message) => {
-		io.emit('chat message', message);
-		console.log(message + " at " + time);
+	function updateUsers() {
+		io.sockets.emit('usernames', Object.keys(users));
+	};
+
+	socket.on('chat message', (data, callback) => {
+		io.sockets.emit('chat message', socket.nickname + ": " + data);
+		console.log(socket.nickname + " at " + time);
 	});
 
-	socket.on('disconnect', (user) => {
-		// add disconnect user !!!!
-		console.log('disconnect', " at " + time);
+	socket.on('private message', (data) => {
+		var name = data;
+		users[name].emit('whisper', { msg: 'Hello World', nick: socket.nickname});
+		console.log(name, socket.id);
+	});
+
+	socket.on('disconnect', (data) => {
+		if(!socket.nickname) return;
+		delete users[socket.nickname];
+		updateUsers();
+		console.log(socket.nickname + ' disconnect', " at " + time);
 	});
 
 	

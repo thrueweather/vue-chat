@@ -47,13 +47,14 @@
     </div>
     <transition name="opacity">
       <div v-show="joinUser" class="join-window">
-        <li
-          v-for="(u, index) in userWindow"
-          :key="index"
-          :u="u"
-          style="list-style: none; color: white; display: inline; font-size: 16px;">
-          <h3>{{ u }}</h3>
-        </li>
+        <ul v-for="(u, index) in userWindow"
+            :key="index"
+            :u="u"
+            style="list-style: none; color: white; display: inline; font-size: 16px;">
+          <li @click="userId">
+            {{ u }}
+          </li>
+        </ul>
       </div>
     </transition>
   </div>
@@ -74,8 +75,7 @@ export default {
       users: [],
       username: null,
       userWindow: [],
-      joinUser: false,
-      vuechat: false
+      joinUser: true,
   }),
   computed: {
     ...mapState([
@@ -87,35 +87,42 @@ export default {
         this.modalWindow = false;
         this.users.push(this.username);
         if(this.username.trim() !== '') {
-          socket.emit('username', this.username);
+          socket.emit('new user', this.username, function(data) {
+            if(data) {
+              this.modalWindow = true;
+            } else {
+              alert('Enter another login');
+              location.reload();
+            }
+          });
+          socket.emit('usernames', this.username);
         };
       },
       msgSend() {
         if(this.msg.trim() !== '') {
-          socket.emit('chat message', this.username + ": " + this.msg);
+          socket.emit('chat message', this.msg);
         };
         this.msg = null;
+      },
+      userId() {
+        socket.emit('private message', this.username);
       },
       ...mapMutations([
         'increment'
       ])
   },
   created() {
-    socket.on('username', (user) => {
-      setTimeout(() => {
-        this.userWindow.push(user);
-        this.joinUser = true;
-      }, 1000);
-      // setTimeout(() => {
-      //   this.joinUser = false;
-      //   this.userWindow.forEach(() => this.userWindow.shift());
-      // }, 2500);
+    socket.on('new user', (data) => {
+      this.userWindow.push(data);
     });
-    socket.on('chat message', (msg) => {
+    socket.on('chat message', (data) => {
       setTimeout(() => {
-        this.messages.push(msg)
+        this.messages.push(data);
       }, 200);
     });
+    socket.on('whisper', (data) => {
+      this.messages.push(data);
+    })
   },
   components: {
     MenuIcon,
