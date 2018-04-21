@@ -1,13 +1,18 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-var users = {};
+var users = [];
+
+http.listen(3001, () => {
+  console.log('listening on * :3001');
+});
 
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '../client/index.html');
 });
 
 io.on('connection', (socket) => {
+
 	let time = (new Date).toLocaleTimeString();
 
 	socket.on('new user', (data, callback) => {
@@ -16,25 +21,26 @@ io.on('connection', (socket) => {
 		} else {
 			socket.nickname = data;
 			users[socket.nickname] = socket;
-			io.emit('new user', data);
+			io.emit('usernames');
 			updateUsers();
 			console.log(socket.nickname + ' joined in chat' + ' at ' + time);
 		}
 	});
 
 	function updateUsers() {
-		io.sockets.emit('usernames', Object.keys(users));
+		let user = Object.keys(users);
+		io.sockets.emit('usernames', user.toLocaleString());
 	};
 
 	socket.on('chat message', (data, callback) => {
 		io.sockets.emit('chat message', socket.nickname + ": " + data);
-		console.log(socket.nickname + " at " + time);
+		console.log(socket.nickname + ": " + data + " at " + time);
 	});
 
-	socket.on('private message', (data) => {
+	socket.on('private message', (data, msg) => {
 		var name = data;
-		users[name].emit('whisper', { msg: 'Hello World', nick: socket.nickname});
-		console.log(name, socket.id);
+		users[name].emit('whisper', { name: socket.nickname + ": "+ 'This private message' });
+		console.log('whisper');
 	});
 
 	socket.on('disconnect', (data) => {
@@ -43,10 +49,4 @@ io.on('connection', (socket) => {
 		updateUsers();
 		console.log(socket.nickname + ' disconnect', " at " + time);
 	});
-
-	
-});
-
-http.listen(3001, () => {
-  console.log('listening on * :3001');
 });

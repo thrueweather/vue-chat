@@ -1,13 +1,21 @@
 <template>
   <div id="app">
     <!-- <img src="./assets/logo.png"> -->
-    <router-view/>
+    <div id="chat" class="chat">
+	    <NavBar/>
+	    <router-view/>
+	</div>
   </div>
 </template>
 
 <script>
+import NavBar from './components/NavBar.vue'
 export default {
-  name: 'App'
+  name: 'App',
+  data: () => ({
+  	
+  }),
+  components: { NavBar }
 }
 </script>
 
@@ -16,6 +24,11 @@ export default {
 @import url('https://fonts.googleapis.com/css?family=Lato:300,400,700');
 body {
   margin: 0;
+}
+.chat {
+  background-color: white;
+  width: 50%;
+  margin: auto;
 }
 #app {
   background-color: #ececec;

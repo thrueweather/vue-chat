@@ -1,29 +1,13 @@
 <template>
-  <div id="chat" class="chat">
+  <div>
     <div v-show="modalWindow" class="modal-log">
       <div class="modal-wrapp">
         <div style="color: white; font-size: 60px; margin-bottom: 10px;">
           <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
         </div>
-        <form v-on:submit.prevent="closeModal">
+        <form v-on:submit.prevent="closeModal" v-on:submit="increment">
           <input v-model="username" type="text" placeholder="Write your login...">
         </form>
-      </div>
-    </div>
-    <div class="head-nav">
-      <div class="logo-drop">
-        <menu-icon style="margin-right: 20px;" class="custom-class"></menu-icon>
-        <a>Messanger {{ count }}</a>
-      </div>
-      <div>
-        <li
-          v-for="(user, index) in users"
-          :key="index"
-          :user="user"
-          style="list-style: none; color: white; display: inline; font-size: 18px;">
-          {{ user }}
-        </li>
-        <user-icon style="color: white;" class="custom-class"></user-icon>
       </div>
     </div>
     <div class="wrapp-main">
@@ -50,7 +34,7 @@
         <ul v-for="(u, index) in userWindow"
             :key="index"
             :u="u"
-            style="list-style: none; color: white; display: inline; font-size: 16px;">
+            style="list-style: none; padding: 0; color: white; display: inline; font-size: 16px;">
           <li @click="userId">
             {{ u }}
           </li>
@@ -72,30 +56,22 @@ export default {
       modalWindow: true,
       messages: [],
       msg: null,
-      users: [],
       username: null,
       userWindow: [],
-      joinUser: true,
+      joinUser: true
   }),
-  computed: {
-    ...mapState([
-      'count'
-    ])
-  },
   methods: {
       closeModal() {
         this.modalWindow = false;
-        this.users.push(this.username);
         if(this.username.trim() !== '') {
           socket.emit('new user', this.username, function(data) {
             if(data) {
               this.modalWindow = true;
             } else {
-              alert('Enter another login');
               location.reload();
+              alert('Enter another login');
             }
           });
-          socket.emit('usernames', this.username);
         };
       },
       msgSend() {
@@ -112,8 +88,11 @@ export default {
       ])
   },
   created() {
-    socket.on('new user', (data) => {
+    socket.on('usernames', (data) => {
       this.userWindow.push(data);
+      if(this.userWindow.length >= 2) {
+        this.userWindow.shift(data);
+      }
     });
     socket.on('chat message', (data) => {
       setTimeout(() => {
@@ -122,6 +101,7 @@ export default {
     });
     socket.on('whisper', (data) => {
       this.messages.push(data);
+      console.log('whisper');
     })
   },
   components: {
@@ -135,27 +115,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.chat {
-  background-color: white;
-  width: 50%;
-  margin: auto;
-}
-.head-nav {
-  max-width: 1210px;
-  margin: 0 auto;
-  padding: 15px 20px;
-  background: #28baf0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.logo-drop {
-  color: white;
-}
-.logo-drop a {
-  font-size: 18px;
-  font-weight: 600;
-}
 .modal-log, .modal-wrapp {
   display: flex;
   flex-direction: column;
