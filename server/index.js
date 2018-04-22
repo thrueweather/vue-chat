@@ -29,19 +29,40 @@ io.on('connection', (socket) => {
 
 	function updateUsers() {
 		let user = Object.keys(users);
-		io.sockets.emit('usernames', user.toLocaleString());
+		io.sockets.emit('usernames', user.toLocaleString(), '<br>');
 	};
 
 	socket.on('chat message', (data, callback) => {
-		io.sockets.emit('chat message', socket.nickname + ": " + data);
-		console.log(socket.nickname + ": " + data + " at " + time);
+		var msg = data.trim();
+		if(msg.substring(0, 3) === '/p ') {
+			msg = msg.substr(3);
+			var i = msg.indexOf(' ');
+			if (i !== -1) {
+				var name = msg.substring(0, i);
+				var msg = msg.substring(i + 1);
+				if (name in users) {
+					users[name].emit('private message',  socket.nickname + ": " + msg);
+					console.log('@ private @ ' + socket.nickname + ": " + data + " at " + time)
+				}
+				else {
+					alert('Enter a valid user');
+				}
+			} 
+			else {
+				alert('Please enter a message for your friend ');
+			}
+		} 
+		else {
+			io.sockets.emit('chat message', socket.nickname + ": " + data);
+			console.log(socket.nickname + ": " + data + " at " + time);
+		}
 	});
 
-	socket.on('private message', (data, msg) => {
-		var name = data;
-		users[name].emit('whisper', { name: socket.nickname + ": "+ 'This private message' });
-		console.log('whisper');
-	});
+	// socket.on('private message', (data, msg) => {
+	// 	var name = data;
+	// 	users[name].emit('whisper', { name: socket.nickname + ": "+ 'This private message' });
+	// 	console.log('whisper');
+	// });
 
 	socket.on('disconnect', (data) => {
 		if(!socket.nickname) return;

@@ -18,7 +18,7 @@
             :index="index"
             :m="m"
             style="padding: 10px;">
-            <p style="margin: 0">
+            <p :title="msgTitle" style="margin: 0">
               {{ m }}
             </p>
           </div>
@@ -35,7 +35,7 @@
             :key="index"
             :u="u"
             style="list-style: none; padding: 0; color: white; display: inline; font-size: 16px;">
-          <li @click="userId">
+          <li>
             {{ u }}
           </li>
         </ul>
@@ -52,7 +52,7 @@ import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'HelloWorld',
   data: () => ({
-      msg: 'Welcome to Your Vue.js App',
+      msgTitle: '/p login message',
       modalWindow: true,
       messages: [],
       msg: null,
@@ -80,9 +80,6 @@ export default {
         };
         this.msg = null;
       },
-      userId() {
-        socket.emit('private message', this.username);
-      },
       ...mapMutations([
         'increment'
       ])
@@ -99,9 +96,8 @@ export default {
         this.messages.push(data);
       }, 200);
     });
-    socket.on('whisper', (data) => {
+    socket.on('private message', (data) => {
       this.messages.push(data);
-      console.log('whisper');
     })
   },
   components: {
