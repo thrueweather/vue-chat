@@ -13,15 +13,16 @@
     <div class="wrapp-main">
       <div>
         <div style="max-height: 540px; overflow-y: scroll;">
-          <div class="message" v-for="(m, index) in messages"
-            :key="index"
-            :index="index"
-            :m="m"
-            style="padding: 10px;">
-            <p :title="msgTitle" style="margin: 0">
-              {{ m }}
-            </p>
-          </div>
+          <transition-group name="opacity">  
+            <div class="message" v-for="(m, index) in messages"
+              :key="index"
+              :index="index"
+              :m="m"
+              style="padding: 10px;">
+              <div :title="msgTitle" style="">{{ m.message }}</div>
+              <div style="color: rgb(184, 184, 184); font-weight: 300;">{{ m.time }}</div>
+            </div>
+          </transition-group>
         </div>
         <form>
           <input type="text" v-model="msg" autocomplete="off" placeholder="Write a message..."/>
@@ -29,18 +30,6 @@
         </form>
       </div>
     </div>
-    <transition name="opacity">
-      <div v-show="joinUser" class="join-window">
-        <ul v-for="(u, index) in userWindow"
-            :key="index"
-            :u="u"
-            style="list-style: none; padding: 0; color: white; display: inline; font-size: 16px;">
-          <li>
-            {{ u }}
-          </li>
-        </ul>
-      </div>
-    </transition>
   </div>
 </template>
 
@@ -52,13 +41,13 @@ import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'HelloWorld',
   data: () => ({
-      msgTitle: '/p login message',
+      msgTitle: '/p login private message',
       modalWindow: true,
-      messages: [],
+      messages: [{
+        message: null, time: null
+      }],
       msg: null,
-      username: null,
-      userWindow: [],
-      joinUser: true
+      username: null
   }),
   methods: {
       closeModal() {
@@ -86,19 +75,18 @@ export default {
   },
   created() {
     socket.on('usernames', (data) => {
-      this.userWindow.push(data);
-      if(this.userWindow.length >= 2) {
-        this.userWindow.shift(data);
-      }
+      this.messages.push({
+        message: data
+      });
     });
     socket.on('chat message', (data) => {
       setTimeout(() => {
-        this.messages.push(data);
+        this.messages.push({
+          message: data,
+          time: (new Date).toLocaleTimeString()
+        });
       }, 200);
     });
-    socket.on('private message', (data) => {
-      this.messages.push(data);
-    })
   },
   components: {
     MenuIcon,
@@ -124,6 +112,9 @@ export default {
   cursor: pointer;
   transition: .3s;
   margin: 10px 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .message:hover {
   background-color: #eee;
@@ -158,18 +149,6 @@ button {
   height: 100%;
   width: 100%;
   z-index: 100;
-}
-.join-window {
-  background-color: #28baf0;
-  padding: 20px;
-  position: absolute;
-  right: 2%;
-  bottom: 5%;
-  width: 300px;
-}
-.join-window h3 {
-  font-weight: 500;
-  margin: 0;
 }
 .opacity-enter-active, .opacity-leave-active {
   transition: opacity .3s;
