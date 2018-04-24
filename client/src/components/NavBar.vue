@@ -5,7 +5,9 @@
         <a>Messanger</a>
       </div>
       <div style="color: white;">
-        <user-icon style="color: white;" class="custom-class"></user-icon>
+        <router-link to="/GroupChat">
+            <user-icon style="color: white;" class="custom-class"></user-icon>
+        </router-link>
       </div>
     </div>
 </template>

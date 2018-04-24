@@ -5,7 +5,7 @@
         <div style="color: white; font-size: 60px; margin-bottom: 10px;">
           <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
         </div>
-        <form v-on:submit.prevent="closeModal" v-on:submit="increment">
+        <form v-on:submit.prevent="closeModal">
           <input v-model="username" type="text" placeholder="Write your login...">
         </form>
       </div>
@@ -19,13 +19,20 @@
               :index="index"
               :m="m"
               style="padding: 10px;">
-              <div :title="msgTitle" style="">{{ m.message }}</div>
-              <div style="color: rgb(184, 184, 184); font-weight: 300;">{{ m.time }}</div>
+              <div :title="msgTitle" style="">
+                {{ m.message }}
+                {{ m.private }}
+              </div>
+              <div style="color: rgb(184, 184, 184); font-weight: 300;">
+                {{ m.time }}
+                {{ m.prtime }}
+              </div> 
             </div>
           </transition-group>
+          <div v-show="typing">user is typing...</div>
         </div>
         <form>
-          <input type="text" v-model="msg" autocomplete="off" placeholder="Write a message..."/>
+          <input type="text" v-model="msg" @input="eventInput" autocomplete="off" placeholder="Write a message..."/>
           <button type="submit" v-on:click.prevent="msgSend"><send-icon class="custom-class"></send-icon></button>
         </form>
       </div>
@@ -43,17 +50,19 @@ export default {
   data: () => ({
       msgTitle: '/p login private message',
       modalWindow: true,
-      messages: [{
-        message: null, time: null
-      }],
-      msg: null,
-      username: null
+      messages: [
+        {message: null, time: null},
+        {private: null, prtime: null}
+      ],
+      msg: "",
+      username: null,
+      typing: false 
   }),
   methods: {
       closeModal() {
         this.modalWindow = false;
-        if(this.username.trim() !== '') {
-          socket.emit('new user', this.username, function(data) {
+        if(this.username.trim() !== "") {
+          socket.emit('new user', this.username, (data) => {
             if(data) {
               this.modalWindow = true;
             } else {
@@ -61,17 +70,26 @@ export default {
               alert('Enter another login');
             }
           });
-        };
+        }
+        else {
+          location.reload();
+          alert('Enter another login');
+        }
       },
       msgSend() {
-        if(this.msg.trim() !== '') {
+        if(this.msg.trim() !== "") {
           socket.emit('chat message', this.msg);
-        };
-        this.msg = null;
+          socket.emit('stop typing', this.typing);
+        } else {
+          this.msg = "";
+        }  
+        this.msg = "";    
       },
-      ...mapMutations([
-        'increment'
-      ])
+      eventInput() {
+        if(this.msg.trim() !== "") {
+          socket.emit('typing', this.typing);
+        } 
+      }
   },
   created() {
     socket.on('usernames', (data) => {
@@ -86,6 +104,18 @@ export default {
           time: (new Date).toLocaleTimeString()
         });
       }, 200);
+    });
+    socket.on('private message', (data) => {
+      this.messages.push({
+        private: data,
+        prtime: (new Date).toLocaleTimeString()
+      });  
+    });
+    socket.on('typing', () => {
+      this.typing = true;
+    });
+    socket.on('stop typing', () => {
+      this.typing = false;
     });
   },
   components: {
@@ -109,15 +139,11 @@ export default {
 /*box-shadow: 0 1px 5px rgba(0,0,0,0.3);*/
 }
 .message {
-  cursor: pointer;
   transition: .3s;
   margin: 10px 0 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.message:hover {
-  background-color: #eee;
 }
 form {
   width: 100%;
