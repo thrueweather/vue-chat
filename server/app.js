@@ -12,7 +12,6 @@ app.get('/', (req, res) => {
 
 var users = [];
 
-var rooms = ['room_1','room_2','room_3','room_3'];
 
 io.on('connection', (socket) => {
 
@@ -24,7 +23,6 @@ io.on('connection', (socket) => {
 			callback(false);
 		} else {
 			socket.nickname = data;
-			socket.room = 'room_1';
 			socket.join('room_1');
 			users[socket.nickname] = socket;
 			io.emit('usernames',  socket.nickname + ' joined in chat to room_1');
@@ -33,12 +31,12 @@ io.on('connection', (socket) => {
 	});
 
 	// when the client writes to all users
-	socket.on('typing', () => {
-		socket.broadcast.emit('typing', {login: socket.nickname});
+	socket.on('typing', (data) => {
+		socket.broadcast.emit('typing', socket.nickname + ' is typing...');
 		console.log(socket.nickname + ": " + "is typing...");
 	});
 
-	socket.on('stop typing', () => {
+	socket.on('stop typing', (data) => {
 		socket.broadcast.emit('stop typing', {login: socket.nickname});
 		console.log(socket.nickname + ": " + "stop typing");
 	});
@@ -61,7 +59,7 @@ io.on('connection', (socket) => {
 			} else {alert('Please enter a message for your friend ')};
 		} 
 		else {
-			io.sockets.emit('chat message', socket.nickname + ": " + data);
+			io.emit('chat message', socket.nickname + ": " + data);
 			console.log(socket.nickname + ": " + data + " at " + time);
 		}
 	});

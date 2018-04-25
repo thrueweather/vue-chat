@@ -5,9 +5,7 @@
         <a>Messanger</a>
       </div>
       <div style="color: white;">
-        <router-link to="/GroupChat">
-            <user-icon style="color: white;" class="custom-class"></user-icon>
-        </router-link>
+          <user-icon style="color: white;" class="custom-class"></user-icon>
       </div>
     </div>
 </template>
@@ -18,13 +16,12 @@ import { mapState, mapMutations } from 'vuex'
 
 export default {
 	data: () => ({
-
+    
 	}),
 	computed: {
 		
 	},
 	methods: {
-	
 	},
 	components: { MenuIcon, MoreVerticalIcon, SendIcon, UserIcon }
 }
@@ -42,9 +39,26 @@ export default {
 }
 .logo-drop {
   color: white;
+  position: relative;
 }
 .logo-drop a {
   font-size: 18px;
   font-weight: 600;
+}
+.drop-menu {
+  background-color: white;
+  color: black;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  padding: 8px;
+}
+.drop-menu a {
+  text-decoration: none;
+  color: black;
+  font-weight: 400;
+}
+.drop-menu a:hover {
+  border-bottom: 0.5px solid black;
 }
 </style>

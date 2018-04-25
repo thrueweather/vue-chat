@@ -29,7 +29,11 @@
               </div> 
             </div>
           </transition-group>
-          <div v-show="typing">user is typing...</div>
+          <div v-show="typing">
+            <div>
+              {{ istyping }}
+            </div>
+          </div>
         </div>
         <form>
           <input type="text" v-model="msg" @input="eventInput" autocomplete="off" placeholder="Write a message..."/>
@@ -50,13 +54,14 @@ export default {
   data: () => ({
       msgTitle: '/p login private message',
       modalWindow: true,
+      username: null,
+      msg: "",
       messages: [
         {message: null, time: null},
         {private: null, prtime: null}
       ],
-      msg: "",
-      username: null,
-      typing: false 
+      typing: false,
+      istyping: ''
   }),
   methods: {
       closeModal() {
@@ -79,7 +84,7 @@ export default {
       msgSend() {
         if(this.msg.trim() !== "") {
           socket.emit('chat message', this.msg);
-          socket.emit('stop typing', this.typing);
+          socket.emit('stop typing', this.istyping);
         } else {
           this.msg = "";
         }  
@@ -111,11 +116,13 @@ export default {
         prtime: (new Date).toLocaleTimeString()
       });  
     });
-    socket.on('typing', () => {
+    socket.on('typing', (data) => {
+      this.istyping = data;
       this.typing = true;
     });
     socket.on('stop typing', () => {
       this.typing = false;
+      this.istyping = "";
     });
   },
   components: {
