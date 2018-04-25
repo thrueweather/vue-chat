@@ -45,20 +45,4 @@ export default {
   font-size: 18px;
   font-weight: 600;
 }
-.drop-menu {
-  background-color: white;
-  color: black;
-  position: absolute;
-  top: 100%;
-  width: 100%;
-  padding: 8px;
-}
-.drop-menu a {
-  text-decoration: none;
-  color: black;
-  font-weight: 400;
-}
-.drop-menu a:hover {
-  border-bottom: 0.5px solid black;
-}
 </style>

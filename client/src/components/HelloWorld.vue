@@ -1,44 +1,46 @@
 <template>
   <div>
-    <div v-show="modalWindow" class="modal-log">
-      <div class="modal-wrapp">
-        <div style="color: white; font-size: 60px; margin-bottom: 10px;">
-          <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+    <div class="container">
+      <div v-show="modalWindow" class="modal-log">
+        <div class="modal-wrapp">
+          <div style="color: white; font-size: 60px; margin-bottom: 10px;">
+            <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+          </div>
+          <form v-on:submit.prevent="closeModal">
+            <input v-model="username" type="text" placeholder="Write your login...">
+          </form>
         </div>
-        <form v-on:submit.prevent="closeModal">
-          <input v-model="username" type="text" placeholder="Write your login...">
-        </form>
       </div>
-    </div>
-    <div class="wrapp-main">
-      <div>
-        <div style="max-height: 540px; overflow-y: scroll;">
-          <transition-group name="opacity">  
-            <div class="message" v-for="(m, index) in messages"
-              :key="index"
-              :index="index"
-              :m="m"
-              style="padding: 10px;">
-              <div :title="msgTitle" style="">
-                {{ m.message }}
-                {{ m.private }}
+      <div class="wrapp-main">
+        <div>
+          <div class="wrapp-message">
+            <transition-group name="opacity">  
+              <div class="message" v-for="(m, index) in messages"
+                :key="index"
+                :index="index"
+                :m="m"
+                style="padding: 10px;">
+                <div :title="msgTitle" style="">
+                  {{ m.message }}
+                  {{ m.private }}
+                </div>
+                <div style="color: rgb(184, 184, 184); font-weight: 300;">
+                  {{ m.time }}
+                  {{ m.prtime }}
+                </div> 
               </div>
-              <div style="color: rgb(184, 184, 184); font-weight: 300;">
-                {{ m.time }}
-                {{ m.prtime }}
-              </div> 
-            </div>
-          </transition-group>
-          <div v-show="typing">
-            <div>
-              {{ istyping }}
+            </transition-group>
+            <div v-show="typing">
+              <div>
+                {{ istyping }}
+              </div>
             </div>
           </div>
+          <form>
+            <input type="text" v-model="msg" @input="eventInput" autocomplete="off" placeholder="Write a message..."/>
+            <button type="submit" v-on:click.prevent="msgSend"><send-icon class="custom-class"></send-icon></button>
+          </form>
         </div>
-        <form>
-          <input type="text" v-model="msg" @input="eventInput" autocomplete="off" placeholder="Write a message..."/>
-          <button type="submit" v-on:click.prevent="msgSend"><send-icon class="custom-class"></send-icon></button>
-        </form>
       </div>
     </div>
   </div>
@@ -141,9 +143,14 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
-.wrapp-main {
-/*box-shadow: 0 1px 5px rgba(0,0,0,0.3);*/
+.modal-wrapp form input {
+  width: 89.9%;
+}
+.wrapp-message {
+  height: 550px; 
+  overflow-y: scroll;
 }
 .message {
   transition: .3s;
@@ -190,4 +197,23 @@ button {
   transition: opacity .5s;
   opacity: 0;
 }
+@media only screen and (max-width : 1199px) {}
+@media only screen and (max-width : 991px) {
+  form {
+    text-align: center;
+  }
+  input {
+    width: 50%;
+  }
+  .wrapp-message {
+    height: 100%; 
+    overflow-y: none;
+  }
+}
+@media only screen and (max-width : 767px) {
+  .wrapp-message {
+    height: 100%; 
+  }
+}
+@media only screen and (max-width : 480px) {}
 </style>
